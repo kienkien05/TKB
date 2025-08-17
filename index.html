@@ -804,9 +804,18 @@
             }
 
             // Check if subject code already exists
-            if (subjectsData.find(s => s.id === code)) {
-                showNotification('Mã môn học đã tồn tại!', 'error');
-                return;
+            const existingSubject = subjectsData.find(s => s.id === code);
+            if (existingSubject) {
+                // Nếu môn đã có trong TKB, đưa về danh sách
+                if (scheduledSubjects.has(code)) {
+                    removeSubjectFromSchedule(code);
+                    renderSubjectsList();
+                    showNotification(`📋 Đã đưa ${existingSubject.name} về danh sách môn học!`, 'warning');
+                    return;
+                } else {
+                    showNotification('Mã môn học đã tồn tại trong danh sách!', 'error');
+                    return;
+                }
             }
 
             const newSubject = {
@@ -1428,5 +1437,6 @@
     </script>
 </body>
 </html>
+
 
 
