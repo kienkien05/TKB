@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <title>Xếp Thời Khóa Biểu</title>
+    <title>Thời Khóa Biểu Kéo Thả Nâng Cao</title>
     <style>
         :root {
             --bg-primary: #0f1419;
@@ -469,6 +469,106 @@
             }
         }
 
+        /* Screenshot */
+        .screenshot-container {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: #1a1f2e; /* Nền tối */
+            padding: 30px;
+            border-radius: 0;
+        }
+
+        .screenshot-title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff; /* Chữ trắng */
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .screenshot-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #252a3a; /* Nền table tối */
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            border: 2px solid #374151;
+        }
+
+        .screenshot-table th {
+            background: linear-gradient(135deg, #6366f1, #ec4899);
+            color: white;
+            padding: 18px 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 14px;
+            border: none;
+        }
+
+        .screenshot-table td {
+            border: 1px solid #374151; /* Border tối */
+            padding: 12px 8px;
+            text-align: center;
+            vertical-align: middle;
+            min-height: 50px;
+            background: #252a3a; /* Cell tối */
+            color: #ffffff; /* Chữ trắng */
+        }
+
+        .screenshot-table .time-slot {
+            background: #1a1f2e; /* Cột thời gian tối hơn */
+            font-weight: 600;
+            color: #b8bcc8; /* Chữ xám sáng */
+            width: 100px;
+            font-size: 11px;
+            border-right: 2px solid #374151;
+        }
+
+        .screenshot-table .session-header {
+            background: #0f1419; /* Header session tối nhất */
+            color: #00d4ff; /* Chữ xanh sáng */
+            font-weight: bold;
+            padding: 12px;
+            font-size: 14px;
+            border-top: 2px solid #374151;
+        }
+
+        .screenshot-table .scheduled-subject {
+            background: linear-gradient(135deg, #6366f1, #ec4899);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            line-height: 1.4;
+            margin: 2px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Màu cho từng loại môn - tươi sáng hơn trên nền tối */
+        .screenshot-table .scheduled-subject.ml { 
+            background: linear-gradient(135deg, #00d4ff, #0ea5e9);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+        }
+        .screenshot-table .scheduled-subject.bigdata { 
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+        .screenshot-table .scheduled-subject.os { 
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+        .screenshot-table .scheduled-subject.iot { 
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+        .screenshot-table .scheduled-subject.ai { 
+            background: linear-gradient(135deg, #6366f1, #7c3aed);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
         /* Notifications */
         .notification {
             position: fixed;
@@ -505,7 +605,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎓 Thời Khóa Biểu</h1>
+        <h1>🎓 Thời Khóa Biểu Kéo Thả Nâng Cao</h1>
         
         <div class="main-content">
             <div class="left-panel">
@@ -804,18 +904,9 @@
             }
 
             // Check if subject code already exists
-            const existingSubject = subjectsData.find(s => s.id === code);
-            if (existingSubject) {
-                // Nếu môn đã có trong TKB, đưa về danh sách
-                if (scheduledSubjects.has(code)) {
-                    removeSubjectFromSchedule(code);
-                    renderSubjectsList();
-                    showNotification(`📋 Đã đưa ${existingSubject.name} về danh sách môn học!`, 'warning');
-                    return;
-                } else {
-                    showNotification('Mã môn học đã tồn tại trong danh sách!', 'error');
-                    return;
-                }
+            if (subjectsData.find(s => s.id === code)) {
+                showNotification('Mã môn học đã tồn tại!', 'error');
+                return;
             }
 
             const newSubject = {
@@ -835,6 +926,7 @@
                 // Vẫn thêm vào danh sách nhưng không tự động xếp lịch
                 subjectsData.push(newSubject);
                 renderSubjectsList();
+                clearForm();
                 showNotification(`Đã thêm môn học! ⚠️ Có xung đột ở tiết ${conflictPeriods.join(', ')} - vui lòng xếp thủ công.`, 'warning');
                 return;
             }
@@ -1293,14 +1385,15 @@
 
         async function saveSchedule() {
             const scheduleTable = document.querySelector('.schedule-table');
-    
+
             // Tạo container cho screenshot
             const screenshotDiv = document.createElement('div');
             screenshotDiv.className = 'screenshot-container';
             screenshotDiv.style.position = 'absolute';
             screenshotDiv.style.left = '-9999px';
+            screenshotDiv.style.top = '0';
             screenshotDiv.innerHTML = `
-                <div class="screenshot-title">THỜI KHÓA BIỂU</div>
+                <div class="screenshot-title">📚 THỜI KHÓA BIỂU</div>
                 ${scheduleTable.outerHTML}
             `;
             
@@ -1312,19 +1405,23 @@
 
             try {
                 const canvas = await html2canvas(screenshotDiv, {
-                    backgroundColor: '#ffffff',
+                    backgroundColor: '#1a1f2e', // Nền tối
                     scale: 2,
                     useCORS: true,
-                    allowTaint: true
+                    allowTaint: true,
+                    width: screenshotDiv.scrollWidth,
+                    height: screenshotDiv.scrollHeight,
+                    x: 0,
+                    y: 0
                 });
 
                 // Tạo link download
                 const link = document.createElement('a');
                 link.download = `thoi-khoa-bieu-${new Date().toLocaleDateString('vi-VN').replace(/\//g, '-')}.png`;
-                link.href = canvas.toDataURL('image/png');
+                link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
 
-                showNotification('📸 Đã chụp ảnh thời khóa biểu!', 'success');
+                showNotification('📸 Đã lưu thời khóa biểu đẹp!', 'success');
             } catch (error) {
                 showNotification('Lỗi khi chụp ảnh! Vui lòng thử lại.', 'error');
                 console.error('Screenshot error:', error);
@@ -1437,6 +1534,3 @@
     </script>
 </body>
 </html>
-
-
-
