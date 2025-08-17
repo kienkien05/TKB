@@ -826,7 +826,6 @@
                 // Vẫn thêm vào danh sách nhưng không tự động xếp lịch
                 subjectsData.push(newSubject);
                 renderSubjectsList();
-                clearForm();
                 showNotification(`Đã thêm môn học! ⚠️ Có xung đột ở tiết ${conflictPeriods.join(', ')} - vui lòng xếp thủ công.`, 'warning');
                 return;
             }
@@ -1429,4 +1428,5 @@
     </script>
 </body>
 </html>
+
 
