@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <title>Thời Khóa Biểu Kéo Thả Nâng Cao</title>
+    <style>
+        :root {
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252a3a;
+            --text-primary: #ffffff;
+            --text-secondary: #b8bcc8;
+            --accent-blue: #00d4ff;
+            --accent-purple: #6366f1;
+            --accent-pink: #ec4899;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --border-color: #374151;
+            --hover-color: #374151;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+            padding: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--text-primary);
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .left-panel {
+            width: 350px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            padding: 0;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--bg-primary);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button.active {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+            background: var(--bg-tertiary);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-header {
+            margin: 0 0 15px 0;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .tab-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* Add Subject Tab */
+        .add-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-input, .form-select {
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .time-slots {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .time-slot-btn {
+            padding: 8px 12px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .time-slot-btn.selected {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, var(--accent-green), #059669);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Subject List Tab */
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .drop-zone {
+            min-height: 300px;
+            border: 2px dashed transparent;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            padding: 0;
+            width: 100%;
+        }
+
+        .drop-zone.drag-over {
+            border-color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .subject-item {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            color: white;
+            padding: 15px;
+            margin: 8px 0;
+            border-radius: 12px;
+            cursor: grab;
+            font-size: 13px;
+            line-height: 1.4;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            user-select: none;
+        }
+
+        .subject-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .subject-item:active {
+            cursor: grabbing;
+        }
+
+        .subject-item::after {
+            content: "Double-click để thêm tự động";
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .subject-item:hover::after {
+            opacity: 1;
+        }
+
+        .subject-item.ml { background: linear-gradient(135deg, var(--accent-blue), #0ea5e9); }
+        .subject-item.bigdata { background: linear-gradient(135deg, var(--accent-green), #059669); }
+        .subject-item.os { background: linear-gradient(135deg, var(--accent-orange), #d97706); }
+        .subject-item.iot { background: linear-gradient(135deg, var(--accent-red), #dc2626); }
+        .subject-item.ai { background: linear-gradient(135deg, var(--accent-purple), #7c3aed); }
+
+        .subject-item .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .subject-item:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .delete-btn:hover {
+            background: var(--accent-red);
+        }
+
+        /* Schedule Grid */
+        .schedule-grid {
+            flex: 1;
+            overflow-x: auto;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .schedule-table th {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            color: white;
+            padding: 15px 8px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .schedule-table td {
+            border: 1px solid var(--border-color);
+            padding: 5px;
+            text-align: center;
+            vertical-align: middle;
+            min-height: 60px;
+            position: relative;
+        }
+
+        .time-slot {
+            background: var(--bg-primary);
+            font-weight: 600;
+            color: var(--text-primary);
+            width: 90px;
+            font-size: 11px;
+        }
+
+        .schedule-cell {
+            min-height: 55px;
+            width: 140px;
+            position: relative;
+            background: var(--bg-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .schedule-cell:hover {
+            background: var(--hover-color);
+        }
+
+        .schedule-cell.drag-over {
+            background: rgba(0, 212, 255, 0.2);
+            border: 2px dashed var(--accent-blue);
+        }
+
+        .scheduled-subject {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            line-height: 1.3;
+            margin: 2px;
+            cursor: grab;
+            box-shadow: 0 3px 12px rgba(99, 102, 241, 0.3);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .scheduled-subject:hover {
+            transform: scale(1.03);
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .scheduled-subject.ml { background: linear-gradient(135deg, var(--accent-blue), #0ea5e9); }
+        .scheduled-subject.bigdata { background: linear-gradient(135deg, var(--accent-green), #059669); }
+        .scheduled-subject.os { background: linear-gradient(135deg, var(--accent-orange), #d97706); }
+        .scheduled-subject.iot { background: linear-gradient(135deg, var(--accent-red), #dc2626); }
+        .scheduled-subject.ai { background: linear-gradient(135deg, var(--accent-purple), #7c3aed); }
+
+        .session-header {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-weight: bold;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        /* Trash Zone */
+        .trash-zone {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            background: var(--bg-tertiary);
+            border: 3px dashed var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .trash-zone.drag-over {
+            background: var(--accent-red);
+            border-color: var(--accent-red);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, var(--accent-red), #dc2626);
+        }
+
+        .btn.success {
+            background: linear-gradient(135deg, var(--accent-green), #059669);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .left-panel {
+                width: 100%;
+            }
+            
+            .schedule-table {
+                font-size: 10px;
+            }
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+            margin-bottom: 10px; /* Thêm khoảng cách giữa các thông báo */
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left: 4px solid var(--accent-green);
+        }
+
+        .notification.error {
+            border-left: 4px solid var(--accent-red);
+        }
+
+        .notification.warning {
+            border-left: 4px solid var(--accent-orange);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Thời Khóa Biểu Kéo Thả Nâng Cao</h1>
+        
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="tabs">
+                    <button class="tab-button active" onclick="switchTab('add')">➕ Thêm môn</button>
+                    <button class="tab-button" onclick="switchTab('list')">📚 Danh sách</button>
+                </div>
+
+                <div id="add-tab" class="tab-content active">
+                    <h3 class="tab-header">Thêm môn học mới</h3>
+                    <p class="tab-description">Tạo môn học mới với thông tin chi tiết và lịch học cụ thể</p>
+                    
+                    <div class="add-form">
+                        <div class="form-group">
+                            <label class="form-label">Tên môn học</label>
+                            <input type="text" id="subject-name" class="form-input" placeholder="VD: Học máy">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Mã lớp học phần</label>
+                            <input type="text" id="subject-code" class="form-input" placeholder="VD: CS320.1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Giảng viên</label>
+                            <input type="text" id="subject-teacher" class="form-input" placeholder="VD: Nguyễn Quang Huy">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Thứ</label>
+                            <select id="subject-day" class="form-select">
+                                <option value="">Chọn thứ</option>
+                                <option value="2">Thứ 2</option>
+                                <option value="3">Thứ 3</option>
+                                <option value="4">Thứ 4</option>
+                                <option value="5">Thứ 5</option>
+                                <option value="6">Thứ 6</option>
+                                <option value="7">Thứ 7</option>
+                                <option value="8">Chủ nhật</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Tiết học</label>
+                            <div class="time-slots" id="time-slots">
+                                <div class="time-slot-btn" data-period="1">1</div>
+                                <div class="time-slot-btn" data-period="2">2</div>
+                                <div class="time-slot-btn" data-period="3">3</div>
+                                <div class="time-slot-btn" data-period="4">4</div>
+                                <div class="time-slot-btn" data-period="5">5</div>
+                                <div class="time-slot-btn" data-period="6">6</div>
+                                <div class="time-slot-btn" data-period="7">7</div>
+                                <div class="time-slot-btn" data-period="8">8</div>
+                                <div class="time-slot-btn" data-period="9">9</div>
+                                <div class="time-slot-btn" data-period="10">10</div>
+                                <div class="time-slot-btn" data-period="11">11</div>
+                                <div class="time-slot-btn" data-period="12">12</div>
+                                <div class="time-slot-btn" data-period="13">13</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Phòng học</label>
+                            <input type="text" id="subject-room" class="form-input" placeholder="VD: A708">
+                        </div>
+                        
+                        <button class="add-btn" onclick="addSubject()">➕ Thêm môn học</button>
+                    </div>
+                </div>
+
+                <div id="list-tab" class="tab-content">
+                    <h3 class="tab-header">Danh sách môn học</h3>
+                    <p class="tab-description">Tìm kiếm và kéo thả môn học vào thời khóa biểu. <strong>Double-click</strong> để tự động thêm vào TKB. Kéo môn từ TKB về đây để xóa khỏi lịch học.</p>
+                    
+                    <input type="text" class="search-box" id="search-box" placeholder="🔍 Tìm kiếm môn học..." onkeyup="searchSubjects()">
+                    
+                    <div id="subjects-list" class="drop-zone">
+                        <!-- Subjects will be added here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="schedule-grid">
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Tiết học</th>
+                            <th>Thứ 2</th>
+                            <th>Thứ 3</th>
+                            <th>Thứ 4</th>
+                            <th>Thứ 5</th>
+                            <th>Thứ 6</th>
+                            <th>Thứ 7</th>
+                            <th>Chủ nhật</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedule-body">
+                        <!-- Morning Session -->
+                        <tr><td class="session-header" colspan="8">🌅 Ca Sáng</td></tr>
+                        <tr>
+                            <td class="time-slot">1<br>07h00-07h50</td>
+                            <td class="schedule-cell" data-day="2" data-period="1"></td>
+                            <td class="schedule-cell" data-day="3" data-period="1"></td>
+                            <td class="schedule-cell" data-day="4" data-period="1"></td>
+                            <td class="schedule-cell" data-day="5" data-period="1"></td>
+                            <td class="schedule-cell" data-day="6" data-period="1"></td>
+                            <td class="schedule-cell" data-day="7" data-period="1"></td>
+                            <td class="schedule-cell" data-day="8" data-period="1"></td>
+                        </tr>
+                        <tr>
+                            <td class="time-slot">2<br>07h55-08h45</td>
+                            <td class="schedule-cell" data-day="2" data-period="2"></td>
+                            <td class="schedule-cell" data-day="3" data-period="2"></td>
+                            <td class="schedule-cell" data-day="4" data-period="2"></td>
+                            <td class="schedule-cell" data-day="5" data-period="2"></td>
+                            <td class="schedule-cell" data-day="6" data-period="2"></td>
+                            <td class="schedule-cell" data-day="7" data-period="2"></td>
+                            <td class="schedule-cell" data-day="8" data-period="2"></td>
+                        </tr>
+                        <tr>
+                            <td class="time-slot">3<br>08h50-09h40</td>
+                            <td class="schedule-cell" data-day="2" data-period="3"></td>
+                            <td class="schedule-cell" data-day="3" data-period="3"></td>
+                            <td class="schedule-cell" data-day="4" data-period="3"></td>
+                            <td class="schedule-cell" data-day="5" data-period="3"></td>
+                            <td class="schedule-cell" data-day="6" data-period="3"></td>
+                            <td class="schedule-cell" data-day="7" data-period="3"></td>
+                            <td class="schedule-cell" data-day="8" data-period="3"></td>
+                        </tr>
+                        <tr>
+                            <td class="time-slot">4<br>09h50-10h40</td>
+                            <td class="schedule-cell" data-day="2" data-period="4"></td>
+                            <td class="schedule-cell" data-day="3" data-period="4"></td>
+                            <td class="schedule-cell" data-day="4" data-period="4"></td>
+                            <td class="schedule-cell" data-day="5" data-period="4"></td>
+                            <td class="schedule-cell" data-day="6" data-period="4"></td>
+                            <td class="schedule-cell" data-day="7" data-period="4"></td>
+                            <td class="schedule-cell" data-day="8" data-period="4"></td>
+                        </tr>
+                        <tr>
+                            <td class="time-slot">5<br>10h45-11h35</td>
+                            <td class="schedule-cell" data-day="2" data-period="5"></td>
+                            <td class="schedule-cell" data-day="3" data-period="5"></td>
+                            <td class="schedule-cell" data-day="4" data-period="5"></td>
+                            <td class="schedule-cell" data-day="5" data-period="5"></td>
+                            <td class="schedule-cell" data-day="6" data-period="5"></td>
+                            <td class="schedule-cell" data-day="7" data-period="5"></td>
+                            <td class="schedule-cell" data-day="8" data-period="5"></td>
+                        </tr>
+                        <tr>
+                            <td class="time-slot">6<br>11h40-12h30</td>
+                            <td class="schedule-cell" data-day="2" data-period="6"></td>
+                            <td class="schedule-cell" data-day="3" data-period="6"></td>
+                            <td class="schedule-cell" data-day="4" data-period="6"></td>
+                            <td class="schedule-cell" data-day="5" data-period="6"></td>
+                            <td class="schedule-cell" data-day="6" data-period="6"></td>
+                            <td class="schedule-cell" data-day="7" data-period="6"></td>
+                            <td class="schedule-cell" data-day="8" data-period="6"></td>
+                        </tr>
+
+                        <!-- Afternoon Session -->
+                        <tr><td class="session-header" colspan="8">🌤️ Ca Chiều</td></tr>
+                        <tr>
+                            <td class="time-slot">7<br>13h30-14h20</td>
+                            <td class="schedule-cell" data-day="2" data-period="7"></td>
+                            <td class="schedule-cell" data-day="3" data-period="7"></td>
+                            <td class="schedule-cell" data-day="4" data-period="7"></td>
+                            <td class="schedule-cell" data-day="5" data-period="7"></td>
+                            <td class="schedule-cell" data-day="6" data-period="7"></td>
+                            <td class="schedule-cell" data-day="7" data-period="7"></td>
+                            <td class="schedule-cell" data-day="8" data-period="7"></td>
+                        </tr>
+                        <tr>
+                            <td class="time-slot">8<br>14h25-15h15</td>
+                            <td class="schedule-cell" data-day="2" data-period="8"></td>
+                            <td class="schedule-cell" data-day="3" data-period="8"></td>
+                            <td class="schedule-cell" data-day="4" data-period="8"></td>
+                            <td class="schedule-cell" data-day="5" data-period="8"></td>
+                            <td class="schedule-cell" data-day="6" data-period="8"></td>
+                            <td class="schedule-cell" data-day="7" data-period="8"></td>
+                            <td class="schedule-cell" data-day="8" data-period="8"></td>
+                        </tr>
+                        <tr>
+                            <td class="time-slot">9<br>15h20-16h10</td>
+                            <td class="schedule-cell" data-day="2" data-period="9"></td>
+                            <td class="schedule-cell" data-day="3" data-period="9"></td>
+                            <td class="schedule-cell" data-day="4" data-period="9"></td>
+                            <td class="schedule-cell" data-day="5" data-period="9"></td>
+                            <td class="schedule-cell" data-day="6" data-period="9"></td>
+                            <td class="schedule-cell" data-day="7" data-period="9"></td>
+                            <td class="schedule-cell" data-day="8" data-period="9"></td>
+                        </tr>
+                        <tr>
+                            <td class="time-slot">10<br>16h20-17h10</td>
+                            <td class="schedule-cell" data-day="2" data-period="10"></td>
+                            <td class="schedule-cell" data-day="3" data-period="10"></td>
+                            <td class="schedule-cell" data-day="4" data-period="10"></td>
+                            <td class="schedule-cell" data-day="5" data-period="10"></td>
+                            <td class="schedule-cell" data-day="6" data-period="10"></td>
+                            <td class="schedule-cell" data-day="7" data-period="10"></td>
+                            <td class="schedule-cell" data-day="8" data-period="10"></td>
+                        </tr>
+                        <tr>
+                            <td class="time-slot">11<br>17h15-18h05</td>
+                            <td class="schedule-cell" data-day="2" data-period="11"></td>
+                            <td class="schedule-cell" data-day="3" data-period="11"></td>
+                            <td class="schedule-cell" data-day="4" data-period="11"></td>
+                            <td class="schedule-cell" data-day="5" data-period="11"></td>
+                            <td class="schedule-cell" data-day="6" data-period="11"></td>
+                            <td class="schedule-cell" data-day="7" data-period="11"></td>
+                            <td class="schedule-cell" data-day="8" data-period="11"></td>
+                        </tr>
+
+                        <!-- Evening Session -->
+                        <tr><td class="session-header" colspan="8">🌙 Ca Tối</td></tr>
+                        <tr>
+                            <td class="time-slot">12<br>18h20-19h10</td>
+                            <td class="schedule-cell" data-day="2" data-period="12"></td>
+                            <td class="schedule-cell" data-day="3" data-period="12"></td>
+                            <td class="schedule-cell" data-day="4" data-period="12"></td>
+                            <td class="schedule-cell" data-day="5" data-period="12"></td>
+                            <td class="schedule-cell" data-day="6" data-period="12"></td>
+                            <td class="schedule-cell" data-day="7" data-period="12"></td>
+                            <td class="schedule-cell" data-day="8" data-period="12"></td>
+                        </tr>
+                        <tr>
+                            <td class="time-slot">13<br>19h15-20h05</td>
+                            <td class="schedule-cell" data-day="2" data-period="13"></td>
+                            <td class="schedule-cell" data-day="3" data-period="13"></td>
+                            <td class="schedule-cell" data-day="4" data-period="13"></td>
+                            <td class="schedule-cell" data-day="5" data-period="13"></td>
+                            <td class="schedule-cell" data-day="6" data-period="13"></td>
+                            <td class="schedule-cell" data-day="7" data-period="13"></td>
+                            <td class="schedule-cell" data-day="8" data-period="13"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Trash Zone -->
+        <div class="trash-zone" id="trash-zone" title="Kéo môn học vào đây để xóa hoàn toàn">
+            🗑️
+        </div>
+
+        <div class="controls">
+            <button class="btn success" onclick="autoScheduleAll()">Tự động xếp TKB</button>
+            <button class="btn" onclick="saveSchedule()">💾 Lưu lịch</button>
+            <button class="btn danger" onclick="clearSchedule()">🗑️ Xóa tất cả</button>
+        </div>
+    </div>
+
+    <script>
+        let draggedElement = null;
+        let scheduleData = {};
+        let subjectsData = [];
+        let scheduledSubjects = new Set();
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            renderSubjectsList();
+            initializeDragAndDrop();
+            initializeTrashZone();
+            
+            // Initialize time slot selection
+            document.querySelectorAll('.time-slot-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                });
+            });
+        });
+
+        // Tab functionality
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        // Add new subject
+        function addSubject() {
+            const name = document.getElementById('subject-name').value.trim();
+            const code = document.getElementById('subject-code').value.trim();
+            const teacher = document.getElementById('subject-teacher').value.trim();
+            const day = document.getElementById('subject-day').value;
+            const room = document.getElementById('subject-room').value.trim();
+            
+            const selectedPeriods = Array.from(document.querySelectorAll('.time-slot-btn.selected'))
+                .map(btn => parseInt(btn.dataset.period));
+
+            if (!name || !code || !teacher || !day || selectedPeriods.length === 0 || !room) {
+                showNotification('Vui lòng điền đầy đủ thông tin!', 'error');
+                return;
+            }
+
+            // Check if subject code already exists
+            if (subjectsData.find(s => s.id === code)) {
+                showNotification('Mã môn học đã tồn tại!', 'error');
+                return;
+            }
+
+            const newSubject = {
+                id: code,
+                name: name,
+                code: code,
+                teacher: teacher,
+                day: day,
+                periods: selectedPeriods.sort((a, b) => a - b),
+                room: room,
+                type: getSubjectType(name.toLowerCase())
+            };
+
+            // Kiểm tra xung đột trước khi thêm
+            const conflictPeriods = checkPeriodConflicts(newSubject, newSubject.day);
+            if (conflictPeriods.length > 0) {
+                // Vẫn thêm vào danh sách nhưng không tự động xếp lịch
+                subjectsData.push(newSubject);
+                renderSubjectsList();
+                clearForm();
+                showNotification(`Đã thêm môn học! ⚠️ Có xung đột ở tiết ${conflictPeriods.join(', ')} - vui lòng xếp thủ công.`, 'warning');
+                return;
+            }
+
+            // Thêm vào danh sách môn học
+            subjectsData.push(newSubject);
+            
+            // Tự động thêm vào thời khóa biểu
+            scheduledSubjects.add(newSubject.id);
+            addSubjectToSchedule(newSubject, newSubject.day);
+            
+            renderSubjectsList();
+            clearForm();
+            
+            const periodsText = newSubject.periods.length > 1 ? 
+                `${newSubject.periods[0]}-${newSubject.periods[newSubject.periods.length - 1]}` : 
+                newSubject.periods[0];
+            
+            showNotification(`✨ Đã thêm và tự động xếp ${newSubject.name} vào ${getDayName(newSubject.day)}, tiết ${periodsText}!`, 'success');
+        }
+
+        function getSubjectType(name) {
+            if (name.includes('học máy') || name.includes('machine learning')) return 'ml';
+            if (name.includes('dữ liệu lớn') || name.includes('big data')) return 'bigdata';
+            if (name.includes('hệ điều hành') || name.includes('operating system')) return 'os';
+            if (name.includes('iot') || name.includes('internet of things')) return 'iot';
+            if (name.includes('trí tuệ nhân tạo') || name.includes('ai') || name.includes('artificial intelligence')) return 'ai';
+            return 'default';
+        }
+
+        function clearForm() {
+            document.getElementById('subject-name').value = '';
+            document.getElementById('subject-code').value = '';
+            document.getElementById('subject-teacher').value = '';
+            document.getElementById('subject-day').value = '';
+            document.getElementById('subject-room').value = '';
+            document.querySelectorAll('.time-slot-btn').forEach(btn => btn.classList.remove('selected'));
+        }
+
+        // Render subjects list
+        function renderSubjectsList() {
+            const container = document.getElementById('subjects-list');
+            container.innerHTML = '';
+            
+            const availableSubjects = subjectsData.filter(subject => !scheduledSubjects.has(subject.id));
+            
+            if (availableSubjects.length === 0) {
+                container.innerHTML = `
+                    <div style="
+                        text-align: center; 
+                        color: var(--text-secondary); 
+                        padding: 40px 20px;
+                        margin: 10px 0;
+                    ">
+                        <div style="font-size: 2em; margin-bottom: 10px;">📚</div>
+                        <div>Chưa có môn học nào</div>
+                        <div style="font-size: 0.9em; margin-top: 5px;">Thêm môn học mới ở tab bên trái</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            availableSubjects.forEach(subject => {
+                const subjectElement = createSubjectElement(subject);
+                container.appendChild(subjectElement);
+            });
+            
+            // Re-initialize drag events for new elements
+            initializeSubjectDragEvents();
+        }
+
+        function createSubjectElement(subject) {
+            const div = document.createElement('div');
+            div.className = `subject-item ${subject.type}`;
+            div.draggable = true;
+            div.dataset.subject = subject.id;
+            
+            const periodsText = subject.periods.length > 1 ? 
+                `${subject.periods[0]}-${subject.periods[subject.periods.length - 1]}` : 
+                subject.periods[0];
+            
+            const dayNames = {
+                '2': 'Thứ 2', '3': 'Thứ 3', '4': 'Thứ 4', 
+                '5': 'Thứ 5', '6': 'Thứ 6', '7': 'Thứ 7', '8': 'Chủ nhật'
+            };
+            
+            div.innerHTML = `
+                <strong>${subject.name} (${subject.code})</strong><br>
+                GV: ${subject.teacher}<br>
+                ${dayNames[subject.day]}, tiết ${periodsText}, ${subject.room}
+                <button class="delete-btn" onclick="deleteSubject('${subject.id}'); event.stopPropagation();" title="Xóa môn học">×</button>
+            `;
+            
+            // Add double click event for auto-scheduling
+            div.addEventListener('dblclick', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                autoAddToSchedule(subject.id);
+            });
+            
+            return div;
+        }
+
+        // Delete subject
+        function deleteSubject(subjectId) {
+            if (confirm('Bạn có chắc chắn muốn xóa môn học này?')) {
+                subjectsData = subjectsData.filter(s => s.id !== subjectId);
+                removeSubjectFromSchedule(subjectId);
+                renderSubjectsList();
+                showNotification('Đã xóa môn học!', 'success');
+            }
+        }
+
+        // Search subjects
+        function searchSubjects() {
+            const searchTerm = document.getElementById('search-box').value.toLowerCase();
+            const subjectItems = document.querySelectorAll('.subject-item');
+            
+            subjectItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        }
+
+        // Drag and Drop functionality
+        function initializeDragAndDrop() {
+            initializeScheduleCellDropZones();
+            initializeSubjectsListDropZone();
+        }
+
+        function initializeSubjectDragEvents() {
+            // Add drag events to subject items
+            document.querySelectorAll('.subject-item').forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    e.dataTransfer.effectAllowed = 'move';
+                    this.style.opacity = '0.5';
+                });
+
+                item.addEventListener('dragend', function(e) {
+                    this.style.opacity = '1';
+                    draggedElement = null;
+                });
+            });
+
+            // Add drag events to scheduled subjects
+            document.querySelectorAll('.scheduled-subject').forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    e.dataTransfer.effectAllowed = 'move';
+                    this.style.opacity = '0.5';
+                });
+
+                item.addEventListener('dragend', function(e) {
+                    this.style.opacity = '1';
+                    draggedElement = null;
+                });
+            });
+        }
+
+        function initializeScheduleCellDropZones() {
+            const scheduleCells = document.querySelectorAll('.schedule-cell');
+            scheduleCells.forEach(cell => {
+                cell.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    this.classList.add('drag-over');
+                });
+
+                cell.addEventListener('dragleave', function(e) {
+                    this.classList.remove('drag-over');
+                });
+
+                cell.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    handleScheduleDrop(e, this);
+                });
+            });
+        }
+
+        function initializeSubjectsListDropZone() {
+            const subjectsList = document.getElementById('subjects-list');
+            
+            subjectsList.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                this.classList.add('drag-over');
+            });
+            
+            subjectsList.addEventListener('dragleave', function(e) {
+                // Only remove highlight when actually leaving the entire drop zone
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX;
+                const y = e.clientY;
+                
+                if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+                    this.classList.remove('drag-over');
+                }
+            });
+            
+            subjectsList.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                handleSubjectsListDrop(e);
+            });
+        }
+
+        function autoScheduleAll() {
+            if (subjectsData.length === 0) {
+                showNotification('Không có môn học nào để tự động xếp lịch!', 'warning');
+                return;
+            }
+
+            let scheduled = 0;
+            let conflicts = 0;
+
+            subjectsData.forEach(subject => {
+                if (!scheduledSubjects.has(subject.id)) {
+                    const conflictPeriods = checkPeriodConflicts(subject, subject.day);
+                    if (conflictPeriods.length === 0) {
+                        scheduledSubjects.add(subject.id);
+                        addSubjectToSchedule(subject, subject.day);
+                        scheduled++;
+                    } else {
+                        conflicts++;
+                    }
+                }
+            });
+
+            renderSubjectsList();
+            
+            if (scheduled > 0) {
+                showNotification(`✨ Đã tự động xếp ${scheduled} môn học!${conflicts > 0 ? ` (${conflicts} môn bị xung đột)` : ''}`, 'success');
+            } else if (conflicts > 0) {
+                showNotification(`❌ Không thể xếp lịch do ${conflicts} môn bị xung đột!`, 'error');
+            } else {
+                showNotification('Tất cả môn học đã được xếp lịch!', 'warning');
+            }
+        }
+
+        // Auto add to schedule function
+        function autoAddToSchedule(subjectId) {
+            const subject = subjectsData.find(s => s.id === subjectId);
+            if (!subject) {
+                showNotification('Không tìm thấy thông tin môn học!', 'error');
+                return;
+            }
+
+            if (scheduledSubjects.has(subjectId)) {
+                showNotification('Môn học đã có trong thời khóa biểu!', 'warning');
+                return;
+            }
+
+            const conflictPeriods = checkPeriodConflicts(subject, subject.day);
+            if (conflictPeriods.length > 0) {
+                const conflictDetails = conflictPeriods.map(period => {
+                    const key = `${subject.day}-${period}`;
+                    const conflictSubject = subjectsData.find(s => s.id === scheduleData[key].subject);
+                    return `Tiết ${period}: ${conflictSubject ? conflictSubject.name : 'Không xác định'}`;
+                }).join(', ');
+                
+                showNotification(`❌ Không thể tự động xếp lịch!\nXung đột: ${conflictDetails}`, 'error');
+                return;
+            }
+
+            scheduledSubjects.add(subjectId);
+            addSubjectToSchedule(subject, subject.day);
+            renderSubjectsList();
+
+            const periodsText = subject.periods.length > 1 ? 
+                `${subject.periods[0]}-${subject.periods[subject.periods.length - 1]}` : 
+                subject.periods[0];
+            
+            showNotification(`✨ Tự động xếp ${subject.name} vào ${getDayName(subject.day)}, tiết ${periodsText}`, 'success');
+        }
+
+        function handleScheduleDrop(e, targetCell) {
+            if (!draggedElement) return;
+
+            const targetDay = targetCell.dataset.day;
+            const targetPeriod = parseInt(targetCell.dataset.period);
+
+            if (!targetDay || !targetPeriod) return;
+
+            // Get subject data
+            const subjectId = draggedElement.dataset.subject;
+            const subject = subjectsData.find(s => s.id === subjectId);
+            
+            if (!subject) {
+                showNotification('Không tìm thấy thông tin môn học!', 'error');
+                return;
+            }
+
+            // Check if the target matches subject's original schedule
+            if (subject.day !== targetDay || !subject.periods.includes(targetPeriod)) {
+                showNotification(`Môn ${subject.name} không có lịch học vào ${getDayName(targetDay)}, tiết ${targetPeriod}!`, 'warning');
+                return;
+            }
+
+            // Check for conflicts
+            const conflictPeriods = checkPeriodConflicts(subject, targetDay);
+            if (conflictPeriods.length > 0) {
+                showNotification(`Không thể xếp lịch! Các tiết ${conflictPeriods.join(', ')} đã có môn học khác.`, 'error');
+                return;
+            }
+
+            // Remove from original position if moving from schedule
+            if (draggedElement.classList.contains('scheduled-subject')) {
+                removeSubjectFromSchedule(subjectId);
+            } else {
+                // Mark as scheduled
+                scheduledSubjects.add(subjectId);
+                renderSubjectsList();
+            }
+
+            // Add subject to all required periods
+            addSubjectToSchedule(subject, targetDay);
+
+            const periodsText = subject.periods.length > 1 ? 
+                `${subject.periods[0]}-${subject.periods[subject.periods.length - 1]}` : 
+                subject.periods[0];
+            
+            showNotification(`Đã xếp ${subject.name} vào ${getDayName(targetDay)}, tiết ${periodsText}`, 'success');
+        }
+
+        function handleSubjectsListDrop(e) {
+            if (!draggedElement || !draggedElement.classList.contains('scheduled-subject')) return;
+            
+            const subjectId = draggedElement.dataset.subject;
+            removeSubjectFromSchedule(subjectId);
+            renderSubjectsList();
+            showNotification('Đã trả môn học về danh sách!', 'success');
+        }
+
+        // Helper functions for multi-period scheduling
+        function checkPeriodConflicts(subject, targetDay) {
+            const conflictPeriods = [];
+            
+            subject.periods.forEach(period => {
+                const key = `${targetDay}-${period}`;
+                if (scheduleData[key] && scheduleData[key].subject !== subject.id) {
+                    conflictPeriods.push(period);
+                }
+            });
+            
+            return conflictPeriods;
+        }
+
+        function addSubjectToSchedule(subject, targetDay) {
+            subject.periods.forEach(period => {
+                const cell = document.querySelector(`[data-day="${targetDay}"][data-period="${period}"]`);
+                if (cell) {
+                    // Clear existing content in cell
+                    cell.innerHTML = '';
+                    
+                    const scheduledSubject = createScheduledSubject(subject);
+                    cell.appendChild(scheduledSubject);
+                    
+                    const key = `${targetDay}-${period}`;
+                    scheduleData[key] = {
+                        subject: subject.id,
+                        element: scheduledSubject
+                    };
+                }
+            });
+            
+            // Re-initialize drag events after adding new scheduled subjects
+            initializeSubjectDragEvents();
+        }
+
+        function removeSubjectFromSchedule(subjectId) {
+            // Find and remove all instances of this subject from schedule
+            Object.keys(scheduleData).forEach(key => {
+                if (scheduleData[key].subject === subjectId) {
+                    if (scheduleData[key].element && scheduleData[key].element.parentNode) {
+                        scheduleData[key].element.remove();
+                    }
+                    delete scheduleData[key];
+                }
+            });
+            
+            // Remove from scheduled subjects set
+            scheduledSubjects.delete(subjectId);
+        }
+
+        function getDayName(day) {
+            const dayNames = {
+                '2': 'Thứ 2', '3': 'Thứ 3', '4': 'Thứ 4', 
+                '5': 'Thứ 5', '6': 'Thứ 6', '7': 'Thứ 7', '8': 'Chủ nhật'
+            };
+            return dayNames[day] || `Thứ ${day}`;
+        }
+
+        function createScheduledSubject(subject) {
+            const scheduled = document.createElement('div');
+            scheduled.className = `scheduled-subject ${subject.type}`;
+            scheduled.draggable = true;
+            scheduled.dataset.subject = subject.id;
+            
+            scheduled.innerHTML = `
+                <strong>${subject.name}</strong><br>
+                ${subject.code}<br>
+                ${subject.room}
+            `;
+            
+            return scheduled;
+        }
+
+        // Trash zone functionality
+        function initializeTrashZone() {
+            const trashZone = document.getElementById('trash-zone');
+            
+            trashZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                this.classList.add('drag-over');
+            });
+            
+            trashZone.addEventListener('dragleave', function(e) {
+                this.classList.remove('drag-over');
+            });
+            
+            trashZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                
+                if (!draggedElement) return;
+                
+                const subjectId = draggedElement.dataset.subject;
+                
+                // Xóa hoàn toàn môn học khỏi danh sách
+                subjectsData = subjectsData.filter(s => s.id !== subjectId);
+                
+                // Xóa khỏi thời khóa biểu (nếu có)
+                removeSubjectFromSchedule(subjectId);
+                
+                // Cập nhật lại giao diện
+                renderSubjectsList();
+                
+                showNotification('Đã xóa môn học hoàn toàn!', 'success');
+            });
+        }
+
+        // Schedule management functions
+        function clearSchedule() {
+            if (confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch học?')) {
+                const scheduledElements = document.querySelectorAll('.scheduled-subject');
+                scheduledElements.forEach(subject => subject.remove());
+                scheduleData = {};
+                scheduledSubjects.clear();
+                renderSubjectsList();
+                showNotification('Đã xóa toàn bộ thời khóa biểu!', 'success');
+            }
+        }
+
+        async function saveSchedule() {
+            const scheduleTable = document.querySelector('.schedule-table');
+    
+            // Tạo container cho screenshot
+            const screenshotDiv = document.createElement('div');
+            screenshotDiv.className = 'screenshot-container';
+            screenshotDiv.style.position = 'absolute';
+            screenshotDiv.style.left = '-9999px';
+            screenshotDiv.innerHTML = `
+                <div class="screenshot-title">THỜI KHÓA BIỂU</div>
+                ${scheduleTable.outerHTML}
+            `;
+            
+            // Thêm class cho table trong screenshot
+            const tableInScreenshot = screenshotDiv.querySelector('.schedule-table');
+            tableInScreenshot.classList.add('screenshot-table');
+            
+            document.body.appendChild(screenshotDiv);
+
+            try {
+                const canvas = await html2canvas(screenshotDiv, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true
+                });
+
+                // Tạo link download
+                const link = document.createElement('a');
+                link.download = `thoi-khoa-bieu-${new Date().toLocaleDateString('vi-VN').replace(/\//g, '-')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                showNotification('📸 Đã chụp ảnh thời khóa biểu!', 'success');
+            } catch (error) {
+                showNotification('Lỗi khi chụp ảnh! Vui lòng thử lại.', 'error');
+                console.error('Screenshot error:', error);
+            } finally {
+                document.body.removeChild(screenshotDiv);
+            }
+        }
+
+        function loadSchedule() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const loadedData = JSON.parse(e.target.result);
+                            
+                            // Clear current schedule
+                            const scheduledElements = document.querySelectorAll('.scheduled-subject');
+                            scheduledElements.forEach(subject => subject.remove());
+                            scheduleData = {};
+                            scheduledSubjects.clear();
+                            
+                            // Load data
+                            if (loadedData.subjectsData) {
+                                subjectsData = loadedData.subjectsData;
+                            }
+                            
+                            if (loadedData.scheduledSubjects) {
+                                scheduledSubjects = new Set(loadedData.scheduledSubjects);
+                            }
+                            
+                            if (loadedData.scheduleData) {
+                                Object.keys(loadedData.scheduleData).forEach(key => {
+                                    const [day, period] = key.split('-');
+                                    const cell = document.querySelector(`[data-day="${day}"][data-period="${period}"]`);
+                                    if (cell) {
+                                        const subjectData = loadedData.scheduleData[key];
+                                        const subject = subjectsData.find(s => s.id === subjectData.subject);
+                                        if (subject) {
+                                            cell.innerHTML = '';
+                                            const scheduledSubject = createScheduledSubject(subject);
+                                            cell.appendChild(scheduledSubject);
+                                            scheduleData[key] = {
+                                                subject: subjectData.subject,
+                                                element: scheduledSubject
+                                            };
+                                        }
+                                    }
+                                });
+                            }
+                            
+                            renderSubjectsList();
+                            initializeSubjectDragEvents();
+                            showNotification('Đã tải thời khóa biểu thành công!', 'success');
+                        } catch (error) {
+                            showNotification('Không thể tải file lịch học. Vui lòng kiểm tra lại file.', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        // Auto-schedule function (placeholder)
+        function autoScheduleMLBigData() {
+            showNotification('Tính năng tự động xếp lịch sẽ được cập nhật sớm!', 'warning');
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            // Tính toán vị trí dựa trên số thông báo hiện có
+            const existingNotifications = document.querySelectorAll('.notification');
+            const topOffset = 20 + (existingNotifications.length * 70); // 70px cho mỗi thông báo
+            notification.style.top = `${topOffset}px`;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                        // Điều chỉnh lại vị trí các thông báo còn lại
+                        updateNotificationPositions();
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        function updateNotificationPositions() {
+            const notifications = document.querySelectorAll('.notification');
+            notifications.forEach((notification, index) => {
+                const topOffset = 20 + (index * 70);
+                notification.style.top = `${topOffset}px`;
+            });
+        }
+    </script>
+</body>
+</html>
