@@ -869,6 +869,7 @@
             renderSubjectsList();
             initializeDragAndDrop();
             initializeTrashZone();
+            loadFormData(); // Tự động load thông tin form đã lưu
             
             // Initialize time slot selection
             document.querySelectorAll('.time-slot-btn').forEach(btn => {
@@ -876,6 +877,7 @@
                     this.classList.toggle('selected');
                 });
             });
+            loadState();
         });
 
         // Tab functionality
@@ -887,7 +889,108 @@
             document.getElementById(`${tabName}-tab`).classList.add('active');
         }
 
-        // Add new subject
+        function addSubjectToSchedule(subject, day) {
+          subject.periods.forEach(period => {
+              const key = `${day}-${period}`;
+              const cell = document.querySelector(`[data-day="${day}"][data-period="${period}"]`);
+              
+              if (cell) {
+                  // Clear existing content
+                  cell.innerHTML = '';
+                  
+                  // Create scheduled subject element
+                  const scheduledSubject = createScheduledSubject(subject);
+                  cell.appendChild(scheduledSubject);
+                  
+                  // Store in schedule data
+                  scheduleData[key] = {
+                      subject: subject.id,
+                      element: scheduledSubject
+                  };
+              }
+          });
+          
+          // Reinitialize drag events for new elements
+          initializeSubjectDragEvents();
+        }
+
+      // Function để kiểm tra xung đột lịch học
+        function checkScheduleConflicts(newSubject) {
+          const conflicts = [];
+          
+          newSubject.periods.forEach(period => {
+              const key = `${newSubject.day}-${period}`;
+              if (scheduleData[key] && scheduleData[key].subject !== newSubject.id) {
+                  const conflictSubject = subjectsData.find(s => s.id === scheduleData[key].subject);
+                  conflicts.push({
+                      period: period,
+                      subject: conflictSubject ? conflictSubject.name : 'Không xác định'
+                  });
+              }
+          });
+          
+          if (conflicts.length > 0) {
+              const conflictMessage = conflicts.map(c => `Tiết ${c.period}: ${c.subject}`).join(', ');
+              return {
+                  hasConflict: true,
+                  message: conflictMessage
+              };
+          }
+          
+          return { hasConflict: false };
+      }
+        function saveFormData(data) {
+            const formData = {
+                teacher: data.teacher,
+                room: data.room,
+                // Có thể lưu thêm các thông tin khác
+            };
+            
+            try {
+                localStorage.setItem('tkb_form_data', JSON.stringify(formData));
+            } catch (e) {
+                console.log('Không thể lưu form data:', e);
+            }
+        }
+
+        // Tải thông tin form đã lưu
+        function loadFormData() {
+            try {
+                const saved = localStorage.getItem('tkb_form_data');
+                if (saved) {
+                    const formData = JSON.parse(saved);
+                    
+                    // Tự động điền lại giảng viên và phòng học
+                    if (formData.teacher) {
+                        document.getElementById('subject-teacher').value = formData.teacher;
+                    }
+                    if (formData.room) {
+                        document.getElementById('subject-room').value = formData.room;
+                    }
+                }
+            } catch (e) {
+                console.log('Không thể tải form data:', e);
+            }
+        }
+
+        // Xóa form một cách có chọn lọc (giữ lại một số thông tin)
+        function clearFormSelectively() {
+            // KHÔNG xóa gì cả - giữ nguyên toàn bộ form
+            // Chỉ bỏ chọn các tiết học để user có thể chọn tiết khác
+            document.querySelectorAll('.time-slot-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Tùy chọn: có thể xóa thứ để user chọn thứ khác
+            // document.getElementById('subject-day').value = '';
+            
+            // Giữ nguyên tất cả các trường khác:
+            // - subject-name (tên môn)
+            // - subject-code (mã môn) 
+            // - subject-teacher (giảng viên)
+            // - subject-room (phòng học)
+        }
+                // Add new subject
         function addSubject() {
             const name = document.getElementById('subject-name').value.trim();
             const code = document.getElementById('subject-code').value.trim();
@@ -903,14 +1006,17 @@
                 return;
             }
 
-            // Check if subject code already exists
-            if (subjectsData.find(s => s.id === code)) {
-                showNotification('Mã môn học đã tồn tại!', 'error');
+            // Tạo ID duy nhất cho môn học
+            const subjectId = `${code}_${day}_${selectedPeriods.join('-')}`;
+
+            // Kiểm tra trùng lặp
+            if (subjectsData.find(s => s.id === subjectId)) {
+                showNotification('Môn học với thời gian này đã tồn tại!', 'error');
                 return;
             }
 
             const newSubject = {
-                id: code,
+                id: subjectId,
                 name: name,
                 code: code,
                 teacher: teacher,
@@ -920,26 +1026,27 @@
                 type: getSubjectType(name.toLowerCase())
             };
 
-            // Kiểm tra xung đột trước khi thêm
-            const conflictPeriods = checkPeriodConflicts(newSubject, newSubject.day);
-            if (conflictPeriods.length > 0) {
-                // Vẫn thêm vào danh sách nhưng không tự động xếp lịch
-                subjectsData.push(newSubject);
-                renderSubjectsList();
-                clearForm();
-                showNotification(`Đã thêm môn học! ⚠️ Có xung đột ở tiết ${conflictPeriods.join(', ')} - vui lòng xếp thủ công.`, 'warning');
+            // Kiểm tra xung đột
+            const conflictCheck = checkScheduleConflicts(newSubject);
+            if (conflictCheck.hasConflict) {
+                showNotification(`❌ Xung đột ca học! ${conflictCheck.message}`, 'error');
                 return;
             }
 
-            // Thêm vào danh sách môn học
+            // Lưu thông tin form để tái sử dụng
+            saveFormData({
+                teacher: teacher,
+                room: room
+            });
+
+            // Thêm vào danh sách và tự động xếp lịch
             subjectsData.push(newSubject);
-            
-            // Tự động thêm vào thời khóa biểu
             scheduledSubjects.add(newSubject.id);
             addSubjectToSchedule(newSubject, newSubject.day);
             
             renderSubjectsList();
-            clearForm();
+            clearFormSelectively(); // Sử dụng clear có chọn lọc
+            saveState();
             
             const periodsText = newSubject.periods.length > 1 ? 
                 `${newSubject.periods[0]}-${newSubject.periods[newSubject.periods.length - 1]}` : 
@@ -1276,28 +1383,120 @@
             return conflictPeriods;
         }
 
-        function addSubjectToSchedule(subject, targetDay) {
-            subject.periods.forEach(period => {
-                const cell = document.querySelector(`[data-day="${targetDay}"][data-period="${period}"]`);
-                if (cell) {
-                    // Clear existing content in cell
-                    cell.innerHTML = '';
-                    
-                    const scheduledSubject = createScheduledSubject(subject);
-                    cell.appendChild(scheduledSubject);
-                    
-                    const key = `${targetDay}-${period}`;
-                    scheduleData[key] = {
-                        subject: subject.id,
-                        element: scheduledSubject
-                    };
-                }
+        function addSubject() {
+            const name = document.getElementById('subject-name').value.trim();
+            const code = document.getElementById('subject-code').value.trim();
+            const teacher = document.getElementById('subject-teacher').value.trim();
+            const day = document.getElementById('subject-day').value;
+            const room = document.getElementById('subject-room').value.trim();
+            
+            const selectedPeriods = Array.from(document.querySelectorAll('.time-slot-btn.selected'))
+                .map(btn => parseInt(btn.dataset.period));
+
+            if (!name || !code || !teacher || !day || selectedPeriods.length === 0 || !room) {
+                showNotification('Vui lòng điền đầy đủ thông tin!', 'error');
+                return;
+            }
+
+            const subjectId = `${code}_${day}_${selectedPeriods.join('-')}`;
+
+            if (subjectsData.find(s => s.id === subjectId)) {
+                showNotification('Môn học với thời gian này đã tồn tại!', 'error');
+                return;
+            }
+
+            const newSubject = {
+                id: subjectId,
+                name: name,
+                code: code,
+                teacher: teacher,
+                day: day,
+                periods: selectedPeriods.sort((a, b) => a - b),
+                room: room,
+                type: getSubjectType(name.toLowerCase())
+            };
+
+            const conflictCheck = checkScheduleConflicts(newSubject);
+            if (conflictCheck.hasConflict) {
+                showNotification(`❌ Xung đột ca học! ${conflictCheck.message}`, 'error');
+                return;
+            }
+
+            subjectsData.push(newSubject);
+            scheduledSubjects.add(newSubject.id);
+            addSubjectToSchedule(newSubject, newSubject.day);
+            
+            renderSubjectsList();
+            // XÓA DÒNG NÀY: clearForm();
+            // CHỈ BỎ CHỌN TIẾT HỌC
+            document.querySelectorAll('.time-slot-btn.selected').forEach(btn => {
+                btn.classList.remove('selected');
             });
             
-            // Re-initialize drag events after adding new scheduled subjects
-            initializeSubjectDragEvents();
+            saveState();
+            
+            const periodsText = newSubject.periods.length > 1 ? 
+                `${newSubject.periods[0]}-${newSubject.periods[newSubject.periods.length - 1]}` : 
+                newSubject.periods[0];
+            
+            showNotification(`✨ Đã thêm và tự động xếp ${newSubject.name} vào ${getDayName(newSubject.day)}, tiết ${periodsText}!`, 'success');
         }
+        
+        function saveState() {
+          const data = {
+              subjectsData: subjectsData,
+              // only save mapping key -> subject id
+              scheduleData: Object.keys(scheduleData).reduce((acc, key) => {
+                  acc[key] = { subject: scheduleData[key].subject };
+                  return acc;
+              }, {})
+          };
+          try {
+              localStorage.setItem('tkb_state', JSON.stringify(data));
+              // optional: small notif
+              // showNotification('Đã lưu trạng thái TKB vào trình duyệt.', 'success');
+          } catch (e) {
+              console.error('Lưu trạng thái thất bại', e);
+              showNotification('Lưu trạng thái thất bại (localStorage).', 'error');
+          }
+      }
 
+        function loadState() {
+          const raw = localStorage.getItem('tkb_state');
+          if (!raw) return;
+          try {
+              const loaded = JSON.parse(raw);
+              if (loaded.subjectsData) subjectsData = loaded.subjectsData;
+              // clear existing schedule
+              const scheduledElements = document.querySelectorAll('.scheduled-subject');
+              scheduledElements.forEach(s => s.remove());
+              scheduleData = {};
+
+              if (loaded.scheduleData) {
+                  Object.keys(loaded.scheduleData).forEach(key => {
+                      const [day, period] = key.split('-');
+                      const cell = document.querySelector(`[data-day="${day}"][data-period="${period}"]`);
+                      if (cell) {
+                          const subjectId = loaded.scheduleData[key].subject;
+                          const subject = subjectsData.find(s => s.id === subjectId);
+                          if (subject) {
+                              cell.innerHTML = '';
+                              const scheduledSubject = createScheduledSubject(subject);
+                              cell.appendChild(scheduledSubject);
+                              scheduleData[key] = { subject: subjectId, element: scheduledSubject };
+                          }
+                      }
+                  });
+              }
+
+              renderSubjectsList();
+              initializeSubjectDragEvents();
+              // showNotification('Đã tải trạng thái TKB từ trình duyệt.', 'success');
+          } catch (e) {
+              console.error('Load trạng thái thất bại', e);
+              showNotification('Không thể tải trạng thái lưu trước đó.', 'error');
+          }
+      }
         function removeSubjectFromSchedule(subjectId) {
             // Find and remove all instances of this subject from schedule
             Object.keys(scheduleData).forEach(key => {
@@ -1534,4 +1733,3 @@
     </script>
 </body>
 </html>
-
