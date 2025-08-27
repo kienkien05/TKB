@@ -877,7 +877,6 @@
                     this.classList.toggle('selected');
                 });
             });
-            loadState();
         });
 
         // Tab functionality
@@ -1046,7 +1045,6 @@
             
             renderSubjectsList();
             clearFormSelectively(); // Sử dụng clear có chọn lọc
-            saveState();
             
             const periodsText = newSubject.periods.length > 1 ? 
                 `${newSubject.periods[0]}-${newSubject.periods[newSubject.periods.length - 1]}` : 
@@ -1433,70 +1431,13 @@
                 btn.classList.remove('selected');
             });
             
-            saveState();
-            
             const periodsText = newSubject.periods.length > 1 ? 
                 `${newSubject.periods[0]}-${newSubject.periods[newSubject.periods.length - 1]}` : 
                 newSubject.periods[0];
             
             showNotification(`✨ Đã thêm và tự động xếp ${newSubject.name} vào ${getDayName(newSubject.day)}, tiết ${periodsText}!`, 'success');
         }
-        
-        function saveState() {
-          const data = {
-              subjectsData: subjectsData,
-              // only save mapping key -> subject id
-              scheduleData: Object.keys(scheduleData).reduce((acc, key) => {
-                  acc[key] = { subject: scheduleData[key].subject };
-                  return acc;
-              }, {})
-          };
-          try {
-              localStorage.setItem('tkb_state', JSON.stringify(data));
-              // optional: small notif
-              // showNotification('Đã lưu trạng thái TKB vào trình duyệt.', 'success');
-          } catch (e) {
-              console.error('Lưu trạng thái thất bại', e);
-              showNotification('Lưu trạng thái thất bại (localStorage).', 'error');
-          }
-      }
 
-        function loadState() {
-          const raw = localStorage.getItem('tkb_state');
-          if (!raw) return;
-          try {
-              const loaded = JSON.parse(raw);
-              if (loaded.subjectsData) subjectsData = loaded.subjectsData;
-              // clear existing schedule
-              const scheduledElements = document.querySelectorAll('.scheduled-subject');
-              scheduledElements.forEach(s => s.remove());
-              scheduleData = {};
-
-              if (loaded.scheduleData) {
-                  Object.keys(loaded.scheduleData).forEach(key => {
-                      const [day, period] = key.split('-');
-                      const cell = document.querySelector(`[data-day="${day}"][data-period="${period}"]`);
-                      if (cell) {
-                          const subjectId = loaded.scheduleData[key].subject;
-                          const subject = subjectsData.find(s => s.id === subjectId);
-                          if (subject) {
-                              cell.innerHTML = '';
-                              const scheduledSubject = createScheduledSubject(subject);
-                              cell.appendChild(scheduledSubject);
-                              scheduleData[key] = { subject: subjectId, element: scheduledSubject };
-                          }
-                      }
-                  });
-              }
-
-              renderSubjectsList();
-              initializeSubjectDragEvents();
-              // showNotification('Đã tải trạng thái TKB từ trình duyệt.', 'success');
-          } catch (e) {
-              console.error('Load trạng thái thất bại', e);
-              showNotification('Không thể tải trạng thái lưu trước đó.', 'error');
-          }
-      }
         function removeSubjectFromSchedule(subjectId) {
             // Find and remove all instances of this subject from schedule
             Object.keys(scheduleData).forEach(key => {
@@ -1733,3 +1674,4 @@
     </script>
 </body>
 </html>
+
