@@ -1,0 +1,11 @@
+{
+  "appId": "com.evient.app",
+  "appName": "EViENT",
+  "webDir": "../EViENT/frontend/dist",
+  "server": {
+    "androidScheme": "http"
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

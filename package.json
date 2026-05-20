@@ -1,0 +1,36 @@
+{
+  "name": "evient-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Capacitor wrapper for building the EViENT Android APK and running Appium automation",
+  "scripts": {
+    "menu": "node ./scripts/mobile-wrapper.cjs menu",
+    "doctor": "node ./scripts/mobile-wrapper.cjs doctor",
+    "web": "node ./scripts/mobile-wrapper.cjs web",
+    "android:init": "npx cap add android",
+    "sync": "node ./scripts/mobile-wrapper.cjs sync",
+    "apk": "node ./scripts/mobile-wrapper.cjs apk",
+    "build": "node ./scripts/mobile-wrapper.cjs build",
+    "build:apk": "node ./scripts/mobile-wrapper.cjs apk",
+    "open": "node ./scripts/mobile-wrapper.cjs open",
+    "open:android": "node ./scripts/mobile-wrapper.cjs open",
+    "appium": "node ./scripts/mobile-wrapper.cjs auth",
+    "appium:setup": "node ./scripts/mobile-wrapper.cjs setup",
+    "appium:auth": "node ./scripts/mobile-wrapper.cjs auth",
+    "appium:admin": "node ./scripts/mobile-wrapper.cjs admin",
+    "appium:all": "node ./scripts/mobile-wrapper.cjs all",
+    "appium:login": "node ./scripts/mobile-wrapper.cjs login",
+    "appium:register": "node ./scripts/mobile-wrapper.cjs register",
+    "appium:otp": "node ./scripts/mobile-wrapper.cjs otp",
+    "test:auth": "node ./scripts/mobile-wrapper.cjs auth",
+    "test:admin": "node ./scripts/mobile-wrapper.cjs admin",
+    "test:appium": "node ./scripts/mobile-wrapper.cjs all"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0"
+  }
+}
