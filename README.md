@@ -1,3 +1,303 @@
+# Kịch Bản Thuyết Trình Kiểm Thử Dự Án EViENT Mobile
+
+## 1. Giới Thiệu Tổng Quan
+
+Trong dự án EViENT Mobile, nhóm em kiểm thử ứng dụng Android được đóng gói bằng Capacitor. Ứng dụng mobile thực chất là một WebView chạy frontend React, còn backend là hệ thống microservices sử dụng API Gateway, Auth Service, Event Service, Order Service, Notification Service và MongoDB.
+
+Vì vậy, phần kiểm thử quan trọng nhất của dự án là kiểm thử tự động end-to-end bằng Appium và WebdriverIO. Appium giúp mô phỏng thao tác thật của người dùng trên Android Emulator, còn WebdriverIO tổ chức và thực thi các test case theo từng kịch bản.
+
+Phần automation của dự án nằm trong thư mục:
+
+```text
+automation/
+├── wdio.appium.conf.cjs
+├── automation-agent.mjs
+├── appium/
+│   ├── helpers/
+│   │   ├── app.cjs
+│   │   └── test-data.cjs
+│   └── specs/
+│       ├── auth.e2e.spec.cjs
+│       └── admin.e2e.spec.cjs
+└── scripts/
+    └── ensure-appium-driver.cjs
+```
+
+Khi thuyết trình, có thể mở đầu như sau:
+
+> Trong phần kiểm thử, nhóm em tập trung vào kiểm thử tự động cho ứng dụng mobile. Ứng dụng được build thành APK Android thông qua Capacitor, sau đó Appium sẽ cài và chạy APK này trên emulator để kiểm thử các luồng nghiệp vụ chính như đăng nhập, đăng ký OTP và chức năng admin.
+
+---
+
+## 2. Quy Trình Kiểm Thử Tổng Thể
+
+Quy trình kiểm thử của dự án được chia thành 5 giai đoạn chính:
+
+1. Thiết kế test case.
+2. Unit testing.
+3. Integration testing.
+4. System testing.
+5. UAT - User Acceptance Testing.
+
+Trong đó, phần automation Appium đóng vai trò quan trọng nhất ở tầng Integration Testing, System Testing và hỗ trợ UAT.
+
+---
+
+## 3. Thiết Kế Test Case
+
+### 3.1. Mục Tiêu
+
+Mục tiêu của bước thiết kế test case là xác định các luồng nghiệp vụ quan trọng cần kiểm thử, bao gồm:
+
+- Đăng nhập.
+- Đăng ký tài khoản.
+- Xác thực OTP.
+- Xử lý lỗi validation.
+- Đăng nhập quyền admin.
+- Truy cập dashboard admin.
+- Quản lý và tìm kiếm người dùng.
+
+Các test case này được hiện thực trong:
+
+- `automation/appium/specs/auth.e2e.spec.cjs`
+- `automation/appium/specs/admin.e2e.spec.cjs`
+
+### 3.2. Bảng Test Case Chính
+
+| Mã test | Nhóm chức năng | Mục tiêu kiểm thử | Dữ liệu đầu vào | Kết quả mong đợi |
+|---|---|---|---|---|
+| AUTH-01 | Đăng nhập | Kiểm tra bỏ trống email | Chỉ nhập mật khẩu | Form chặn submit, email invalid |
+| AUTH-02 | Đăng nhập | Kiểm tra bỏ trống mật khẩu | Chỉ nhập email | Form chặn submit, password invalid |
+| AUTH-03 | Đăng nhập | Kiểm tra sai mật khẩu | Email đúng, mật khẩu sai | Hiển thị toast: "Email hoặc mật khẩu không đúng" |
+| AUTH-04 | Đăng ký | Kiểm tra bỏ trống họ tên | Email và mật khẩu hợp lệ, thiếu họ tên | Form chặn submit |
+| AUTH-05 | Đăng ký | Kiểm tra email đã tồn tại | Email đã được seed trong DB | Hiển thị toast: "Email đã được đăng ký" |
+| AUTH-06 | OTP | Kiểm tra nhập sai OTP | OTP sai được tạo từ OTP thật | Hiển thị toast: "Mã OTP không hợp lệ hoặc đã hết hạn" |
+| AUTH-07 | Đăng ký OTP | Đăng ký thành công bằng OTP thật | Email mới, OTP lấy từ MongoDB | Chuyển đến home page |
+| AUTH-08 | Đăng nhập | Đăng nhập user đã tồn tại | User được seed trước | Chuyển đến home page |
+| ADMIN-01 | Admin | Đăng nhập admin | Admin được seed trước | Chuyển đến admin dashboard |
+| ADMIN-02 | Admin | Mở trang quản lý người dùng | Tài khoản admin | Search thấy user admin |
+
+### 3.3. Script Thuyết Trình
+
+> Trước khi viết automation, nhóm em thiết kế test case dựa trên các luồng nghiệp vụ quan trọng nhất của hệ thống. Với người dùng thông thường, nhóm em kiểm thử đăng nhập, đăng ký, OTP và các lỗi validation. Với admin, nhóm em kiểm thử đăng nhập vào dashboard và truy cập trang quản lý người dùng.
+
+> Các test case được đặt mã rõ ràng như AUTH-01, AUTH-02 đến AUTH-08 để dễ quản lý, dễ trình bày và dễ chạy riêng từng case khi cần debug.
+
+---
+
+## 4. Unit Testing
+
+### 4.1. Mục Tiêu
+
+Unit testing dùng để kiểm tra các hàm xử lý nhỏ, độc lập, chưa cần chạy toàn bộ ứng dụng mobile.
+
+Trong dự án này, phần automation chưa tách riêng thành một bộ unit test độc lập, nhưng các helper đã được thiết kế thành các hàm nhỏ để có thể kiểm thử riêng nếu cần.
+
+Các nhóm hàm phù hợp cho unit testing:
+
+- Sinh email test duy nhất.
+- Chuẩn hóa email.
+- Tạo OTP sai từ OTP thật.
+- Build MongoDB URI.
+- Kiểm tra định dạng OTP 6 chữ số.
+
+### 4.2. Ví Dụ Các Hàm Có Thể Unit Test
+
+Trong `automation/appium/helpers/test-data.cjs`:
+
+```javascript
+function createUniqueEmail(prefix = 'automation.mobile') {
+  const normalizedPrefix = prefix
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '.')
+    .replace(/^\.+|\.+$/g, '');
+
+  return `${normalizedPrefix}.${Date.now()}.${Math.floor(Math.random() * 10000)}@evient.test`;
+}
+```
+
+Hàm này dùng để sinh email mới cho mỗi lần chạy test, tránh trùng dữ liệu trong MongoDB.
+
+Trong `automation/appium/specs/auth.e2e.spec.cjs`:
+
+```javascript
+function buildWrongOtp(actualOtp) {
+  const digits = String(actualOtp).split('');
+  const firstDigit = digits[0] === '9' ? '8' : '9';
+  digits[0] = firstDigit;
+  return digits.join('');
+}
+```
+
+Hàm này nhận OTP thật, thay đổi chữ số đầu tiên để tạo OTP sai, phục vụ test case AUTH-06.
+
+### 4.3. Script Thuyết Trình
+
+> Ở tầng unit testing, nhóm em tập trung vào các hàm xử lý nhỏ trong automation helper. Ví dụ, hàm tạo email test duy nhất giúp tránh trùng dữ liệu khi test nhiều lần. Hàm tạo OTP sai giúp kiểm thử trường hợp người dùng nhập sai mã xác minh.
+
+> Tuy các hàm này nhỏ, nhưng nếu chúng hoạt động sai thì toàn bộ kịch bản end-to-end phía sau có thể bị lỗi. Vì vậy việc tách helper rõ ràng giúp automation dễ bảo trì và dễ kiểm thử hơn.
+
+---
+
+## 5. Integration Testing
+
+### 5.1. Mục Tiêu
+
+Integration testing kiểm tra sự phối hợp giữa nhiều thành phần trong hệ thống:
+
+- Ứng dụng Android.
+- Capacitor WebView.
+- Frontend React.
+- API Gateway.
+- Auth Service.
+- MongoDB.
+- Appium automation.
+
+Điểm nổi bật của dự án là automation không chỉ thao tác trên giao diện, mà còn kết nối trực tiếp MongoDB để chuẩn bị dữ liệu test và lấy OTP thật.
+
+### 5.2. Helper Dữ Liệu Kiểm Thử
+
+File chính:
+
+```text
+automation/appium/helpers/test-data.cjs
+```
+
+Các hàm quan trọng:
+
+| Hàm | Vai trò |
+|---|---|
+| `upsertUser()` | Seed user hoặc admin vào MongoDB trước khi chạy test |
+| `cleanupUser()` | Xóa user và OTP sau khi test |
+| `waitForLatestOtp()` | Polling MongoDB để lấy OTP mới nhất |
+| `closeMongo()` | Đóng kết nối MongoDB sau khi test |
+
+Ví dụ luồng integration của đăng ký OTP:
+
+```text
+Appium nhập form đăng ký
+        ↓
+Frontend gọi API register
+        ↓
+Auth Service tạo OTP
+        ↓
+MongoDB lưu OTP
+        ↓
+Automation đọc OTP từ MongoDB
+        ↓
+Appium nhập OTP vào app
+        ↓
+Hệ thống xác thực và chuyển đến home page
+```
+
+### 5.3. Script Thuyết Trình
+
+> Ở tầng integration testing, nhóm em kiểm tra sự phối hợp giữa giao diện mobile, backend và database. Ví dụ trong luồng đăng ký, Appium nhập thông tin trên app Android, backend tạo OTP và lưu vào MongoDB, sau đó automation truy vấn MongoDB để lấy OTP mới nhất rồi nhập lại vào màn hình OTP.
+
+> Cách làm này giúp kiểm thử đúng luồng thực tế của hệ thống, không cần nhập OTP thủ công và không phụ thuộc vào việc đọc email thật.
+
+---
+
+## 6. System Testing
+
+### 6.1. Mục Tiêu
+
+System testing kiểm thử toàn bộ hệ thống như một người dùng thật.
+
+Trong dự án này, system testing được thực hiện bằng Appium và WebdriverIO. Automation sẽ:
+
+1. Mở APK trên Android Emulator.
+2. Chuyển vào WebView của ứng dụng Capacitor.
+3. Tìm element bằng `data-testid`.
+4. Nhập dữ liệu, click button, chờ toast hoặc màn hình kết quả.
+5. Kiểm tra kết quả bằng assertion.
+
+### 6.2. Cấu Hình Appium
+
+File cấu hình:
+
+```text
+automation/wdio.appium.conf.cjs
+```
+
+Các cấu hình quan trọng:
+
+```javascript
+capabilities: [{
+  platformName: 'Android',
+  'appium:automationName': 'UiAutomator2',
+  'appium:deviceName': process.env.EVIENT_ANDROID_DEVICE || 'Android Emulator',
+  'appium:app': apkPath,
+  'appium:autoWebview': true,
+  'appium:autoWebviewTimeout': 20000,
+  'appium:chromedriverAutodownload': true,
+}]
+```
+
+Ý nghĩa:
+
+- `UiAutomator2`: driver dùng để điều khiển Android.
+- `app`: đường dẫn APK debug cần test.
+- `autoWebview`: tự động chuyển vào WebView của ứng dụng hybrid.
+- `chromedriverAutodownload`: tự tải ChromeDriver phù hợp với WebView.
+
+### 6.3. Helper Giao Diện
+
+File chính:
+
+```text
+automation/appium/helpers/app.cjs
+```
+
+Các hàm quan trọng:
+
+| Hàm | Vai trò |
+|---|---|
+| `switchToWebView()` | Chuyển Appium từ native context sang WebView context |
+| `waitForTestId()` | Chờ element theo `data-testid` |
+| `typeInto()` | Nhập dữ liệu vào input |
+| `clickElement()` | Click element, có fallback khi click bị chặn |
+| `waitForToastText()` | Chờ toast thông báo lỗi |
+| `fillOtpCode()` | Nhập từng chữ số OTP vào 6 ô input |
+| `loginThroughForm()` | Đăng nhập bằng form |
+| `openAdminUsersPage()` | Mở trang quản lý người dùng trong admin |
+
+### 6.4. Lệnh Chạy System Test
+
+Chạy kiểm tra môi trường:
+
+```powershell
+npm run doctor
+```
+
+Build frontend, sync Capacitor và build APK:
+
+```powershell
+npm run build
+```
+
+Chạy bộ test auth:
+
+```powershell
+npm run appium
+```
+
+Chạy bộ test admin:
+
+```powershell
+npm run appium:admin
+```
+
+Chạy toàn bộ test:
+
+```powershell
+npm run appium:all
+```
+
+Chạy trực tiếp trong thư mục automation:
+
+```powershell
+cd automation
 npm run test:auth
 npm run test:admin
 npm run test:appium
